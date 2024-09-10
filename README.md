@@ -10,10 +10,10 @@ To set up the necessary tools (kubectl, eksctl, AWS CLI, Helm, Terraform) on you
    
 3. Run the script to install the tools:
    ./install_tools.sh
-   The script will install all required tools and display their versions upon successful installation.
+  
 4. Verify the installation by checking the versions of the installed tools:
-   kubectl version --client --short
-   eksctl version
-   aws --version
-   helm version --short
+   kubectl version --client --short;
+   eksctl version;
+   aws --version;
+   helm version --short;
    terraform -v
