@@ -17,3 +17,5 @@ To set up the necessary tools (kubectl, eksctl, AWS CLI, Helm, Terraform) on you
    aws --version;
    helm version --short;
    terraform -v
+
+5. Connect to AWS: aws configure
