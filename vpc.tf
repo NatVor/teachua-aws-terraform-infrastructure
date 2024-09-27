@@ -1,13 +1,11 @@
 provider "aws" {
-  region = "us-east-1"
+  region = var.region
 }
 
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
 
-  tags = {
-    Name = "main"
-  }
+  tags = var.tags
 }
 
 # Internet Gateway for public subnets
@@ -35,53 +33,32 @@ resource "aws_nat_gateway" "nat" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-resource "aws_subnet" "private_us_east_1a" {
+# Define private and public subnets
+resource "aws_subnet" "private" {
+  count             = length(var.private_subnet_cidrs)
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.0.0/19"
-  availability_zone = "us-east-1a"
+  cidr_block        = element(var.private_subnet_cidrs, count.index)
+  availability_zone = element(var.availability_zones, count.index)
 
   tags = {
-    "Name"                            = "private-us-ea-1a"
-    "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/cluster/teachua"      = "owned"
+    Name                            = "private-${count.index + 1}"
+    kubernetes.io/role/internal-elb = "1"
+    kubernetes.io/cluster/teachua   = "owned"
   }
 }
 
-resource "aws_subnet" "private_us_east_1b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.32.0/19"
-  availability_zone = "us-east-1b"
+resource "aws_subnet" "public" {
+  count                  = length(var.public_subnet_cidrs)
+  vpc_id                 = aws_vpc.main.id
+  cidr_block             = element(var.public_subnet_cidrs, count.index)
+  availability_zone      = element(var.availability_zones, count.index)
 
-  tags = {
-    "Name"                            = "private-us-ea-1b"
-    "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/cluster/teachua"      = "owned"
-  }
-}
-
-resource "aws_subnet" "public_us_east_1a" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.64.0/19"
-  availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 
   tags = {
-    "Name"                       = "public-us-ea-1a"
-    "kubernetes.io/role/elb"     = "1"
-    "kubernetes.io/cluster/teachua" = "owned"
-  }
-}
-
-resource "aws_subnet" "public_us_east_1b" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.96.0/19"
-  availability_zone       = "us-east-1b"
-  map_public_ip_on_launch = true
-
-  tags = {
-    "Name"                       = "public-us-ea-1b"
-    "kubernetes.io/role/elb"     = "1"
-    "kubernetes.io/cluster/teachua" = "owned"
+    Name                           = "public-${count.index + 1}"
+    kubernetes.io/role/elb         = "1"
+    kubernetes.io/cluster/teachua   = "owned"
   }
 }
 
@@ -111,22 +88,14 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_route_table_association" "private_us_east_1a" {
-  subnet_id      = aws_subnet.private_us_east_1a.id
+resource "aws_route_table_association" "private" {
+  count          = length(var.private_subnet_cidrs)
+  subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
 
-resource "aws_route_table_association" "private_us_east_1b" {
-  subnet_id      = aws_subnet.private_us_east_1b.id
-  route_table_id = aws_route_table.private.id
-}
-
-resource "aws_route_table_association" "public_us_east_1a" {
-  subnet_id      = aws_subnet.public_us_east_1a.id
-  route_table_id = aws_route_table.public.id
-}
-
-resource "aws_route_table_association" "public_us_east_1b" {
-  subnet_id      = aws_subnet.public_us_east_1b.id
+resource "aws_route_table_association" "public" {
+  count          = length(var.public_subnet_cidrs)
+  subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
