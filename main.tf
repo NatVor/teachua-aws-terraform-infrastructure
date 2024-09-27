@@ -1,15 +1,10 @@
 resource "aws_eks_cluster" "teachua" {
-  name     = "teachua"
-  version  = "1.25"
+  name     = var.eks_cluster_name
+  version  = var.eks_version
   role_arn = aws_iam_role.teachua.arn
 
   vpc_config {
-    subnet_ids = [
-      aws_subnet.private_us_east_1a.id,
-      aws_subnet.private_us_east_1b.id,
-      aws_subnet.public_us_east_1a.id,
-      aws_subnet.public_us_east_1b.id
-    ]
+    subnet_ids = concat(var.private_subnet_ids, var.public_subnet_ids)
     endpoint_private_access = true
     endpoint_public_access  = true
   }
