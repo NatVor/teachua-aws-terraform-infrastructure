@@ -48,6 +48,24 @@ variable "eks_version" {
   default     = "1.25"
 }
 
+variable "private_subnet_ids" {
+  description = "Private subnet IDs for the EKS cluster."
+  type        = list(string)
+  default     = [
+    aws_subnet.private_us_east_1a.id,
+    aws_subnet.private_us_east_1b.id
+  ]
+}
+
+variable "public_subnet_ids" {
+  description = "Public subnet IDs for the EKS cluster."
+  type        = list(string)
+  default     = [
+    aws_subnet.public_us_east_1a.id,
+    aws_subnet.public_us_east_1b.id
+  ]
+}
+
 # variable "db_password" {
 #  description = "Password for the RDS database"
 #  type        = string
