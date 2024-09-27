@@ -1,4 +1,4 @@
-=== TeachUA Terraform AWS Infrastructure ===
+===  TeachUA Terraform AWS Infrastructure  ===
 
 Installing Required Tools
 
