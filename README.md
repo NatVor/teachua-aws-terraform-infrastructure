@@ -1,4 +1,4 @@
-teachua-terraform-aws-infrastructure
+TeachUA-terraform-aws-infrastructure
 Installing Required Tools
 To set up the necessary tools (kubectl, eksctl, AWS CLI, Helm, Terraform) on your machine, follow these steps:
 
